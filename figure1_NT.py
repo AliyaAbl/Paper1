@@ -1,42 +1,11 @@
-"""
-This code is used to fit KRR. Note that KRR for large
-datasets can require a lot of memory. For FMNIST models
-we used 64GB and for synthetic datasets (with n = 10^5),
-we used 128GB of RAM. This code is written for Python 2.7.13. 
-
-Inputs:
-
-experiment_name: The name of the experiment (used for record keeping).
-
-param_1: overloaded argument: 
-	When kernel name = polynomial: Power of the polynomial kernel 
-	When dataset == SYNTH: the number of observations
-	otherwise, the number of layers for ntk kernel
-
-p2_ind:	The constant term in the polynomial kernel.
-
-kernel_name: The name of the kernel: ntk, gp (ReLU RF), poly (polynomial).
-
-job_id: Job id (used for record keeping).
-
-dataset: The name of the dataset: 
-	FMNIST (high-frequency noise)/ NFMNIST (low-frequency noise)
-	CIFAR10 (low-frequency noise)/ CIFAR2 (high-frequency noise)
-	SYNTH (synthetic data).
-
-noise_index: The index of the noise level. An integer typically ranging from zero (no noise) to 14.
-"""
 
 from __future__ import print_function
 import math
 import numpy as np
-import os 
-import sys
 import scipy.linalg as scl
 import scipy.sparse as ss
 import time
-import numpy as np
-import os
+from preprocess import prep_data
 import matplotlib.pyplot as plt
 import torch.nn as nn
 import torch
@@ -45,7 +14,6 @@ from   scipy.fftpack import dct, idct
 import math
 import torch.optim as optim
 import time
-import torchvision
 from   torch.utils.data import Dataset, DataLoader
 
 
@@ -231,13 +199,14 @@ for i in range(len(tau)):
     X_test, Y_test  = get_data_with_HF_noise(tau=tau[i],x_train_=x_test,  y_train=y_test, plot=False)
 
     errors = np.zeros((4)) #Train Loss, Train Accuracy, Test Loss, Test Accuracy
-
+    print('Computing Kernels...')
     K, KT, ytrain, ytest = compute_kernel(X_train, X_test, Y_train, Y_test)
-
+    print('Done computing Kernels.')
+    
     n = len(ytrain)
     nt = len(ytest)
     if expand:
-        # Expand the labels
+        print('expanding labels...')
         maxVal = np.int(ytrain.max())
         Y = np.zeros((n, maxVal + 1), dtype=np.float32)
         Y[np.arange(n), ytrain[:, 0].astype(np.int32)] = 1.0
@@ -272,7 +241,5 @@ for i in range(len(tau)):
     errors[3] = compute_accuracy(ytest - mean, preds - mean)
 
     history_tau = np.append(history_tau, errors[3])
-
-np.save('history_tau_NT.npy', history_tau)
 
   
