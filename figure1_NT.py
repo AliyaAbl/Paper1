@@ -37,16 +37,18 @@ def NTK2(X, Z):
     nx = np.linalg.norm(X, axis=0, keepdims=True)
     nx = nx.T    
     nz = np.linalg.norm(Z, axis=0, keepdims=True)    
-
+    print('1')
     C = np.dot(X.T, Z) #n_1 * n_2
     C = np.multiply(C, (nx ** -1))
     C = np.multiply(C, (nz ** -1))
+    print('2')
     # Fixing numerical mistakes
     C = np.minimum(C, 1.0)
     C = np.maximum(C, -1.0)			
-
+    print('3')
     C = np.multiply(1.0 - np.arccos(C) / pi, C) + np.sqrt(1 - np.power(C, 2)) / (2 * pi)
     C = np.multiply(nx, np.multiply(C, nz))
+
     return C
 
 def compute_kernel(X_train, X_test, Y_train, Y_test):
@@ -62,7 +64,7 @@ def compute_kernel(X_train, X_test, Y_train, Y_test):
     """	
     X = X_train
     Xtest = X_test	
-    K = NTK2(X.T, X.T)
+    K  = NTK2(X.T, X.T)
     KT = NTK2(Xtest.T, X.T)
 
     return (K, KT, Y_train, Y_test)
@@ -169,7 +171,7 @@ for i in range(len(tau)):
     
     (x_train_, y_train), (x_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
     X_train,Y_train = get_data_with_HF_noise(tau=tau[i],x_train_=x_train_,y_train=y_train, plot=False)
-    X_test, Y_test  = get_data_with_HF_noise(tau=tau[i],x_train_=x_test,  y_train=y_test, plot=False)
+    X_test, Y_test  = get_data_with_HF_noise(tau=tau[i],x_train_=x_test,  y_train=y_test,  plot=False)
 
     errors = np.zeros((4)) #Train Loss, Train Accuracy, Test Loss, Test Accuracy
     print('Computing Kernels...')
