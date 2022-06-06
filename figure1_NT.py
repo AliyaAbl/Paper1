@@ -35,7 +35,6 @@ import sys
 import scipy.linalg as scl
 import scipy.sparse as ss
 import time
-from preprocess import prep_data
 import numpy as np
 import os
 import matplotlib.pyplot as plt
