@@ -274,4 +274,6 @@ for i in range(len(tau)):
 
     history_tau = np.append(history_tau, errors[3])
 
+np.save('history_tau_NT.npy', history_tau)
+
   
