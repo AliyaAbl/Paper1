@@ -5,7 +5,6 @@ import numpy as np
 import scipy.linalg as scl
 import scipy.sparse as ss
 import time
-from preprocess import prep_data
 import matplotlib.pyplot as plt
 import torch.nn as nn
 import torch
@@ -202,7 +201,7 @@ for i in range(len(tau)):
     print('Computing Kernels...')
     K, KT, ytrain, ytest = compute_kernel(X_train, X_test, Y_train, Y_test)
     print('Done computing Kernels.')
-    
+
     n = len(ytrain)
     nt = len(ytest)
     if expand:
