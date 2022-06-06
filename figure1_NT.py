@@ -19,79 +19,53 @@ from   torch.utils.data import Dataset, DataLoader
 
 
 def NTK2(X, Z):
-	"""This function computes NTK kernel for two-layer ReLU neural networks via
-	an analytic formula.
+    """This function computes NTK kernel for two-layer ReLU neural networks via
+    an analytic formula.
 
-	Input:
-	X: d times n_1 matrix, where d is the feature dimension and n_i are # obs.
-	Z: d times n_2 matrix, where d is the feature dimension and n_i are # obs.
+    Input:
+    X: d times n_1 matrix, where d is the feature dimension and n_i are # obs.
+    Z: d times n_2 matrix, where d is the feature dimension and n_i are # obs.
 
-	output:
-	C: The kernel matrix of size n_1 times n_2.
-	"""
-	pi = math.pi
-	assert X.shape[0] == Z.shape[0]
-	# X is sized d \times n
-	nx = np.linalg.norm(X, axis=0, keepdims=True)
-	nx = nx.T    
-	nz = np.linalg.norm(Z, axis=0, keepdims=True)    
+    output:
+    C: The kernel matrix of size n_1 times n_2.
+    """
 
-	C = np.dot(X.T, Z) #n_1 * n_2
-	C = np.multiply(C, (nx ** -1))
-	C = np.multiply(C, (nz ** -1))
-	# Fixing numerical mistakes
-	C = np.minimum(C, 1.0)
-	C = np.maximum(C, -1.0)			
+    print(np.shape(X)[0], np.shape(Z)[0])
+    pi = math.pi
+    assert X.shape[0] == Z.shape[0]
+    # X is sized d \times n
+    nx = np.linalg.norm(X, axis=0, keepdims=True)
+    nx = nx.T    
+    nz = np.linalg.norm(Z, axis=0, keepdims=True)    
 
-	C = np.multiply(1.0 - np.arccos(C) / pi, C) + np.sqrt(1 - np.power(C, 2)) / (2 * pi)
-	C = np.multiply(nx, np.multiply(C, nz))
-	return C
+    C = np.dot(X.T, Z) #n_1 * n_2
+    C = np.multiply(C, (nx ** -1))
+    C = np.multiply(C, (nz ** -1))
+    # Fixing numerical mistakes
+    C = np.minimum(C, 1.0)
+    C = np.maximum(C, -1.0)			
 
-def RFK2(X, Z):
-	"""This function computes RF kernel for two-layer ReLU neural networks via
-	an analytic formula.
-
-	Input:
-	X: d times n_1 matrix, where d is the feature dimension and n_i are # obs.
-	Z: d times n_2 matrix, where d is the feature dimension and n_i are # obs.
-
-	output:
-	C: The kernel matrix of size n_1 times n_2.
-	"""
-	pi = math.pi
-	assert X.shape[0] == Z.shape[0]
-	# X is sized d \times n
-	nx = np.linalg.norm(X, axis=0, keepdims=True)
-	nx = nx.T    
-	nz = np.linalg.norm(Z, axis=0, keepdims=True)    
-
-	C = np.dot(X.T, Z) #n_1 * n_2
-	C = np.multiply(C, (nx ** -1))
-	C = np.multiply(C, (nz ** -1))
-	# Fixing numerical mistakes
-	C = np.minimum(C, 1.0)
-	C = np.maximum(C, -1.0)
-	C = np.multiply(np.arcsin(C), C) / pi + C / 2.0 + np.sqrt(1 - np.power(C, 2)) / pi
-	C = 0.5 * np.multiply(nx, np.multiply(C, nz))
-	return C
+    C = np.multiply(1.0 - np.arccos(C) / pi, C) + np.sqrt(1 - np.power(C, 2)) / (2 * pi)
+    C = np.multiply(nx, np.multiply(C, nz))
+    return C
 
 def compute_kernel(X_train, X_test, Y_train, Y_test):
-        """This function computes the test and the training kernels.
-        Inputs:
-            name: Kernel name.
-            hyper_param: Kernel hyper-parameters.
-        Outputs:
-            Training Kernel: n times n np.float32 matrix.
-            Test Kernel: nt times n np.float32 matrix.
-            ytrain: vector of training labels. n times 1 np.float32.
-            ytest: vector of test labels. nt times 1 np.float32.
-        """	
-        X = X_train
-        Xtest = X_test	
-        K = NTK2(X.T, X.T)
-        KT = NTK2(Xtest.T, X.T)
+    """This function computes the test and the training kernels.
+    Inputs:
+        name: Kernel name.
+        hyper_param: Kernel hyper-parameters.
+    Outputs:
+        Training Kernel: n times n np.float32 matrix.
+        Test Kernel: nt times n np.float32 matrix.
+        ytrain: vector of training labels. n times 1 np.float32.
+        ytest: vector of test labels. nt times 1 np.float32.
+    """	
+    X = X_train
+    Xtest = X_test	
+    K = NTK2(X.T, X.T)
+    KT = NTK2(Xtest.T, X.T)
 
-        return (K, KT, Y_train, Y_test)
+    return (K, KT, Y_train, Y_test)
 
 def compute_accuracy(true_labels, preds):
 	"""This function computes the classification accuracy of the vector
